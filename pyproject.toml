@@ -9,9 +9,9 @@ description = "Research-oriented RF/microwave eigenmode solver MVP inspired by H
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-  "numpy>=1.26",
-  "scipy>=1.12",
-  "matplotlib>=3.8",
+    "numpy>=1.26",
+    "scipy>=1.12",
+    "matplotlib>=3.8",
 ]
 
 [project.optional-dependencies]
@@ -19,6 +19,7 @@ dev = ["pytest>=8", "ruff>=0.5"]
 
 [project.scripts]
 openwave = "openwave.cli:main"
+openwave-gui = "openwave.gui:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
