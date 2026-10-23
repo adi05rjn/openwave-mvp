@@ -15,7 +15,15 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: Install project and test dependencies
-        run: python -m pip install -e ".[dev]"
+      - name: Create a clean Python environment
+        run: python -m venv .venv
+      - name: Install declared project dependencies
+        run: .venv/bin/python -m pip install -e ".[dev]"
       - name: Run numerical regression tests
-        run: python -m pytest -q
+        run: .venv/bin/python -m pytest -q
+      - name: Run WR-90 simulation and generate a plot
+        env:
+          MPLBACKEND: Agg
+        run: |
+          .venv/bin/openwave --width-mm 22.86 --height-mm 10.16 --modes 4 --plot artifacts/wr90.png
+          test -s artifacts/wr90.png
