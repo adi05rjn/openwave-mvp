@@ -1,4 +1,8 @@
-"""Structured 2-D grid utilities."""
+"""Cell-centred structured 2-D grid utilities.
+
+Each unknown is located at a cell centre. This matches the symmetric
+finite-volume Neumann stencil used by the waveguide eigenmode operator.
+"""
 
 from dataclasses import dataclass
 
@@ -20,16 +24,16 @@ class StructuredGrid2D:
 
     @property
     def dx(self) -> float:
-        return self.width / (self.nx - 1)
+        return self.width / self.nx
 
     @property
     def dy(self) -> float:
-        return self.height / (self.ny - 1)
+        return self.height / self.ny
 
     @property
     def x(self) -> np.ndarray:
-        return np.linspace(0.0, self.width, self.nx)
+        return (np.arange(self.nx) + 0.5) * self.dx
 
     @property
     def y(self) -> np.ndarray:
-        return np.linspace(0.0, self.height, self.ny)
+        return (np.arange(self.ny) + 0.5) * self.dy
