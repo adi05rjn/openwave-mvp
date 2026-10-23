@@ -40,6 +40,8 @@ class RectangularWaveguide:
     def solve_te_modes(self, count: int = 6, eps_r: float = 1.0, mu_r: float = 1.0) -> list[Mode]:
         if count < 1:
             raise ValueError("count must be positive")
+        if count + 1 >= self.grid.nx * self.grid.ny:
+            raise ValueError("count must be at least two fewer than the number of grid points")
         if eps_r <= 0 or mu_r <= 0:
             raise ValueError("Material parameters must be positive")
 
@@ -53,17 +55,16 @@ class RectangularWaveguide:
         eigenvalues = np.maximum(eigenvalues[order], 0.0)
         eigenvectors = eigenvectors[:, order]
 
+        # The constant Neumann mode is always the first eigenpair. Exclude it
+        # by index rather than using an absolute eigenvalue threshold, which
+        # depends on the guide's physical length scale.
         modes: list[Mode] = []
-        for value, vector in zip(eigenvalues, eigenvectors.T, strict=True):
-            if value < 1e-8:
-                continue
+        for value, vector in zip(eigenvalues[1:], eigenvectors.T[1:], strict=True):
             kc = float(np.sqrt(value))
             cutoff = C0 * kc / (2.0 * np.pi * np.sqrt(eps_r * mu_r))
             field = vector.reshape((self.grid.ny, self.grid.nx))
             field /= np.max(np.abs(field))
             modes.append(Mode(len(modes) + 1, kc, cutoff, field))
-            if len(modes) == count:
-                break
         return modes
 
     def propagation_constant(self, frequency_hz: float, cutoff_frequency_hz: float, eps_r: float = 1.0, mu_r: float = 1.0) -> complex:
