@@ -37,7 +37,7 @@ class RectangularWaveguide:
         kc = np.sqrt((m * np.pi / self.grid.width) ** 2 + (n * np.pi / self.grid.height) ** 2)
         return C0 * kc / (2.0 * np.pi * np.sqrt(eps_r * mu_r))
 
-    def solve_te_modes(self, count: int = 6, eps_r: float = 1.0, mu_r: float = 1.0) -> list[Mode]:
+    def solve_te_modes(self, count: int = 6, eps_r: float = 1.0, mu_r: float = 1.0, *, seed: int | None = None) -> list[Mode]:
         if count < 1:
             raise ValueError("count must be positive")
         if count + 1 >= self.grid.nx * self.grid.ny:
@@ -50,7 +50,9 @@ class RectangularWaveguide:
         )
 
         # Request one extra eigenpair because the Neumann problem has a zero mode.
-        eigenvalues, eigenvectors = eigsh(operator, k=count + 1, which="SM")
+        # Keep the historical default; headless experiments can fix ARPACK's start.
+        options = {} if seed is None else {"v0": np.random.default_rng(seed).normal(size=operator.shape[0])}
+        eigenvalues, eigenvectors = eigsh(operator, k=count + 1, which="SM", **options)
         order = np.argsort(eigenvalues)
         eigenvalues = np.maximum(eigenvalues[order], 0.0)
         eigenvectors = eigenvectors[:, order]
