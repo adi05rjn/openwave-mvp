@@ -115,6 +115,11 @@ def main() -> None:
             except OSError as exc:
                 messagebox.showerror("Save failed", str(exc), parent=root)
 
+    def close_app(_event=None) -> None:
+        """Close the application and release its GUI resources."""
+        root.quit()
+        root.destroy()
+
     ttk.Button(controls, text="Run", command=run_simulation).grid(row=1, column=3)
     actions = ttk.Frame(root, padding=(12, 0, 12, 8))
     actions.pack(fill="x")
@@ -123,8 +128,11 @@ def main() -> None:
     selector.bind("<<ComboboxSelected>>", display_mode)
     save_button = ttk.Button(actions, text="Save PNG", command=save_png, state="disabled")
     save_button.pack(side="left")
+    ttk.Button(actions, text="Exit", command=close_app).pack(side="right")
     ttk.Label(root, textvariable=status_var, padding=(12, 0, 12, 10)).pack(fill="x")
     root.bind("<Return>", run_simulation)
+    root.bind("<Escape>", close_app)
+    root.protocol("WM_DELETE_WINDOW", close_app)
     root.mainloop()
 
 
