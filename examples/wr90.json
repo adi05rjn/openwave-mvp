@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "kind": "rectangular_waveguide_te",
+  "geometry": {"width_mm": 22.86, "height_mm": 10.16},
+  "mesh": {"nx": 61, "ny": 31},
+  "solver": {"modes": 4, "seed": 0}
+}
