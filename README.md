@@ -48,6 +48,23 @@ openwave --width-mm 22.86 --height-mm 10.16 --modes 4 --plot artifacts/mode1.png
 
 It prints cutoff frequencies in GHz and saves a PNG of the first mode.
 
+## AI-agent experiments (headless)
+
+Agents can create versioned JSON experiments and run the existing solver without
+opening the GUI or using an LLM-specific dependency:
+
+```bash
+openwave schema
+openwave validate examples/wr90.json
+openwave run examples/wr90.json --output artifacts/wr90-agent
+```
+
+The run saves structured cutoff results, normalized fields, coordinates, the
+validated input, and provenance hashes. Output directories must be new.
+See the [AI-agent workflow](docs/AI_AGENT_WORKFLOW.md) for the format, Python API,
+error protocol, reproducibility limits, and an example agent prompt.
+The desktop interface and original flag-based command remain available.
+
 ## For developers
 
 ```bash
