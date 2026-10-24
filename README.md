@@ -65,6 +65,18 @@ See the [AI-agent workflow](docs/AI_AGENT_WORKFLOW.md) for the format, Python AP
 error protocol, reproducibility limits, and an example agent prompt.
 The desktop interface and original flag-based command remain available.
 
+MCP-compatible agents can also use OpenWave through a local stdio server with
+`get_experiment_schema`, `validate_experiment`, and `run_experiment` tools.
+Python 3.11+ is needed **only for this optional integration**:
+
+```bash
+python -m pip install -e '.[mcp]'
+openwave-mcp --output-root ./artifacts/mcp
+```
+
+See [MCP server setup and safety limits](docs/MCP_SERVER.md) to connect an
+agent and run the automated MCP client tests.
+
 ## For developers
 
 ```bash
