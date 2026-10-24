@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenWave experiment 1.0",
+  "description": "Vacuum-filled, perfectly conducting rectangular waveguide scalar TE eigenmodes. All settings are explicit; dimensions are in millimetres.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "kind", "geometry", "mesh", "solver"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "kind": {"const": "rectangular_waveguide_te"},
+    "geometry": {
+      "type": "object", "additionalProperties": false,
+      "required": ["width_mm", "height_mm"],
+      "properties": {
+        "width_mm": {"type": "number", "minimum": 0.001, "maximum": 1000000},
+        "height_mm": {"type": "number", "minimum": 0.001, "maximum": 1000000}
+      }
+    },
+    "mesh": {
+      "type": "object", "additionalProperties": false,
+      "required": ["nx", "ny"],
+      "properties": {
+        "nx": {"type": "integer", "minimum": 4, "maximum": 256},
+        "ny": {"type": "integer", "minimum": 4, "maximum": 256}
+      }
+    },
+    "solver": {
+      "type": "object", "additionalProperties": false,
+      "required": ["modes", "seed"],
+      "properties": {
+        "modes": {"type": "integer", "minimum": 1, "maximum": 12},
+        "seed": {"type": "integer", "minimum": 0, "maximum": 4294967295}
+      }
+    }
+  }
+}
