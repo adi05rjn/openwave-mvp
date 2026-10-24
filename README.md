@@ -1,87 +1,68 @@
-# OpenWave MVP
+# OpenWave
 
-OpenWave is a research-oriented RF/microwave computational electromagnetics prototype inspired by the workflow of commercial 3-D field solvers. This MVP deliberately starts with a narrow, verifiable problem: **TE eigenmodes of a PEC rectangular waveguide**.
+**Learn RF waveguide modes by changing dimensions and watching the field patterns.**
 
-## Implemented
+OpenWave is an early open-source teaching tool for rectangular waveguides. It shows the first four transverse-electric (TE) modes, their cutoff frequencies, and the corresponding **relative longitudinal magnetic-field** (`H_z`) patterns.
 
-- Structured 2-D cross-section grid
-- Sparse Neumann Laplacian assembly
-- TE scalar eigenmode solution
-- Cutoff-frequency extraction
-- Analytic rectangular-waveguide validation
-- Propagation-constant calculation
-- Field plotting
-- CLI, minimal desktop GUI, example, and tests
+No scripting or solver configuration is needed to use the desktop interface.
 
-## Scope limitation
+## Try it on Linux
 
-This is not yet a full HFSS replacement. It currently uses a scalar finite-difference eigenproblem rather than full-vector tetrahedral finite elements with Nédélec edge basis functions. The architecture is intended to evolve toward that solver.
-
-## Install
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e '.[dev]'
-```
-
-## Run
-
-```bash
-openwave --width-mm 22.86 --height-mm 10.16 --modes 4
-pytest
-```
-
-For WR-90, the analytic TE10 cutoff is approximately 6.557 GHz. The numerical result should converge toward it as the grid is refined.
-
-## Minimal desktop GUI (Linux)
-
-On Ubuntu/Debian with a graphical desktop, install the system prerequisites:
+You need Python 3.10+ and a graphical desktop. Tkinter is required for the desktop interface. On Ubuntu/Debian, install the prerequisites first:
 
 ```bash
 sudo apt update
 sudo apt install -y git python3-venv python3-tk
 ```
 
-Clone OpenWave and create a clean Python environment:
+On other Linux distributions (including Arch-based systems), install Python, Tk, and Python virtual-environment support using your package manager.
 
 ```bash
 git clone https://github.com/adi05rjn/openwave-mvp.git
 cd openwave-mvp
-git switch --track origin/fix/cell-centered-neumann-grid
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
 openwave-gui
 ```
 
-After pull request #1 is merged into main, you can omit the `git switch` line. The repository must be public or you must have GitHub access to clone it.
+## Your first experiment (about two minutes)
 
-Enter the rectangular waveguide width and height in millimetres, choose the number of modes, and click **Run**. Select a mode to inspect its normalized scalar Hz field, or click **Save PNG**. The GUI does not support geometry editing, 3-D CAD, materials, or S-parameter simulations. The normal `openwave` command-line program remains available and works without a desktop.
+1. **OpenWave starts with an example already displayed.** The initial waveguide is 22.86 mm wide and 10.16 mm tall.
+2. Look at the colored pattern: red and blue represent opposite signs of the magnetic field `H_z`, **not heat or power**.
+3. Change **Width (mm)** from `22.86` to `30` and press **Update**.
+4. Notice how the field pattern and the **cutoff frequency** change.
+5. Choose another pattern using **Show pattern**. You can save the image or close the window with **Exit** (or Esc).
 
-## MVP-to-research roadmap
+**What is cutoff frequency?** Each waveguide mode has a minimum frequency needed to travel through the guide. Below its cutoff, the mode does not propagate along the guide.
 
-1. Replace scalar finite differences with triangular first-order FEM.
-2. Implement Nédélec edge elements for the vector curl-curl equation.
-3. Add Gmsh mesh import and physical-region tagging.
-4. Add wave-port eigenproblems and modal normalization.
-5. Implement driven frequency-domain solves and S-parameter extraction.
-6. Add first-order absorbing boundaries and PML.
-7. Add adaptive residual/error-based mesh refinement.
-8. Add lossy, anisotropic, and dispersive materials.
-9. Introduce PETSc/MPI and optional GPU backends.
-10. Extend the lightweight GUI with Python CAD/setup APIs.
+**What is a mode?** A particular electromagnetic field pattern that can exist inside the waveguide.
 
-## Proposed repository layout
+## Optional command line
 
-```text
-src/openwave/       solver package
-tests/              numerical regression tests
-examples/           executable models
-docs/               architecture and mathematics
-.github/workflows/  CI
+The command-line interface is useful for further experiments but is **not needed** for the GUI.
+
+```bash
+openwave --width-mm 22.86 --height-mm 10.16 --modes 4 --plot artifacts/mode1.png
 ```
+
+It prints cutoff frequencies in GHz and saves a PNG of the first mode.
+
+## For developers
+
+```bash
+python -m pip install -e '.[dev]'
+python -m pytest -q
+```
+
+The solver uses a cell-centred 2-D grid and a scalar finite-difference TE eigenproblem. The repository includes analytical cutoff and mesh-convergence tests. See [architecture notes](docs/ARCHITECTURE.md).
+
+## Current limits
+
+OpenWave only handles ideal, perfectly conducting, rectangular waveguides and scalar TE modes. It does **not** yet support TM modes, driven simulations, S-parameters, conductor losses, arbitrary CAD geometries, or full 3-D electromagnetic fields.
+
+It is an educational prototype, not a substitute for a full-wave RF design tool.
 
 ## License
 
-Apache-2.0. Commercial names are used only to describe the category of software and are not affiliated with this project.
+Apache-2.0 (see [LICENSE](LICENSE)).
