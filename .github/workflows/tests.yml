@@ -27,3 +27,13 @@ jobs:
         run: |
           .venv/bin/openwave --width-mm 22.86 --height-mm 10.16 --modes 4 --plot artifacts/wr90.png
           test -s artifacts/wr90.png
+      - name: Run the headless JSON experiment workflow
+        run: |
+          .venv/bin/openwave schema > /tmp/openwave-schema.json
+          .venv/bin/openwave validate examples/wr90.json
+          .venv/bin/openwave run examples/wr90.json --output artifacts/wr90-agent
+          test -s artifacts/wr90-agent/results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wr90-example
+          path: artifacts/
