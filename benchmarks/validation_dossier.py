@@ -394,8 +394,9 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     args.output.mkdir(parents=True, exist_ok=True)
     data = build(args.quick)
-    (args.output / "results.json").write_text(json.dumps(data, indent=2, allow_nan=False) + "\n")
-    (args.output / "report.md").write_text(render_markdown(data))
+    (args.output / "results.json").write_text(
+        json.dumps(data, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+    (args.output / "report.md").write_text(render_markdown(data), encoding="utf-8")
     save_convergence_plot(data["convergence"], args.output / "convergence.png")
     print(json.dumps({"status": "success", "output": str(args.output)}))
     return 0
