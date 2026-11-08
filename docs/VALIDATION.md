@@ -141,10 +141,10 @@ Values are relative cutoff errors against the continuum formula. The figure
 ## 4. Ambiguities a user must know about
 
 **Sign.** Eigenvectors are defined up to sign. The JSON bundle makes the first
-sample with |H_z| > 0.5 positive; the GUI and legacy CLI do not normalize sign. In six fresh launches of the GUI's
-computation (no seed), mode 1 was positive at the left edge three times and
-negative three times, so the colours in the real window can swap between launches.
-Red/blue in a plot is relative sign only.
+sample with |H_z| > 0.5 positive. The GUI now applies the same rule and a fixed
+seed, so its colours are the same on every launch (before this, with no seed,
+mode 1 was positive at the left edge in three of six fresh launches). The legacy
+CLI's plot still does not normalize sign. Red/blue in a plot is relative sign only.
 
 **Indexing.** "Mode k" means the k-th smallest computed eigenvalue. It is not an
 analytical TE(m,n) label. On the 20 × 10.05 mm guide the continuum order is
