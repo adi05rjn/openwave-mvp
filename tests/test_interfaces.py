@@ -110,6 +110,29 @@ def test_legacy_and_json_cli_agree_with_oracle(width, height, tmp_path):
     assert_same_fields_up_to_sign([m.field for m in gui_modes], fields)
 
 
+@pytest.mark.parametrize(("width", "height"), [*PROBLEMS, pytest.param("10", "10", id="square"),
+                                              pytest.param("40", "7", id="wide")])
+def test_gui_colours_do_not_depend_on_the_solver_sign(width, height):
+    """The red side used to swap between launches (eigenvector sign is arbitrary).
+
+    Every mode must now have its first strong sample positive. Before the fix each
+    mode had an independent 50 % chance, so across these guides a regression
+    passes this test with probability below 0.1 %.
+    """
+    _, modes = solve_for_display(width, height)
+    for mode in modes:
+        flat = mode.field.ravel()
+        assert flat[np.flatnonzero(np.abs(flat) > 0.5)[0]] > 0
+
+
+@pytest.mark.parametrize(("width", "height"), PROBLEMS)
+def test_gui_fields_equal_json_bundle_including_sign(width, height):
+    _, gui_modes = solve_for_display(width, height)
+    bundle = execute_experiment(experiment(width, height)).fields
+    for gui_mode, expected in zip(gui_modes, bundle):
+        np.testing.assert_allclose(gui_mode.field, expected, rtol=0, atol=1e-8)
+
+
 def test_json_bundle_sign_convention_holds():
     fields = execute_experiment(experiment("22.86", "10.16")).fields
     for field in fields:
