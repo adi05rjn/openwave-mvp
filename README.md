@@ -86,6 +86,8 @@ python -m pytest -q
 
 The solver uses a cell-centred 2-D grid and a scalar finite-difference TE eigenproblem. The repository includes analytical cutoff and mesh-convergence tests. See [architecture notes](docs/ARCHITECTURE.md).
 
+The [validation dossier](docs/VALIDATION.md) derives the expected error, checks several geometries and higher-order modes, documents sign, indexing and degeneracy pitfalls, and compares the GUI, CLI, JSON and MCP interfaces. Regenerate it with `python benchmarks/validation_dossier.py --output artifacts/validation`.
+
 ## Current limits
 
 OpenWave only handles ideal, perfectly conducting, rectangular waveguides and scalar TE modes. It does **not** yet support TM modes, driven simulations, S-parameters, conductor losses, arbitrary CAD geometries, or full 3-D electromagnetic fields.
