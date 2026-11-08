@@ -1,0 +1,9 @@
+# Opens a pull request when a GitHub Action used by the workflows has a newer
+# release, so CI does not silently age. Python dependencies are intentionally
+# not listed: their ranges live in pyproject.toml and are checked by CI.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
