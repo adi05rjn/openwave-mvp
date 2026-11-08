@@ -34,4 +34,7 @@ async def test_mcp_agrees_with_oracle_and_runner(width, height, tmp_path):
     modes = reply.structured_content["result"]["modes"]
     np.testing.assert_allclose([m["cutoff_frequency_hz"] for m in modes], expected, rtol=1e-10)
     in_process = execute_experiment(experiment(width, height))
-    np.testing.assert_array_equal(np.load(tmp_path / "parity" / "fields.npy"), in_process.fields)
+    # Same sign convention and seed, but a separate process with single-threaded
+    # BLAS, so floating-point summation order can differ: compare to tolerance.
+    np.testing.assert_allclose(
+        np.load(tmp_path / "parity" / "fields.npy"), in_process.fields, rtol=0, atol=1e-8)

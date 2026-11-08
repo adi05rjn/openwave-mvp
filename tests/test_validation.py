@@ -149,16 +149,35 @@ def test_higher_modes_converge_at_second_order(m, n):
     assert all(1.95 < order < 2.05 for order in orders), orders
 
 
-def test_degenerate_pair_subspace_is_seed_independent_but_vectors_are_not():
+def test_degenerate_pair_subspace_is_seed_independent():
     a = b = 10 * MM
     runs = [RectangularWaveguide(a, b, 48, 48).solve_te_modes(2, seed=s) for s in range(5)]
     bases = [unit_fields(modes) for modes in runs]
     for basis in bases[1:]:
         assert subspace_sine(basis, bases[0]) < 1e-10
-    overlaps = [abs(basis[:, 0] @ bases[0][:, 0]) for basis in bases[1:]]
-    # At least one seed rotates mode 1 substantially within the pair: individual
-    # degenerate fields are not reproducible quantities, only the pair is.
-    assert min(overlaps) < 0.9
+
+
+def test_rotating_a_degenerate_pair_gives_equally_valid_modes():
+    """Why individual degenerate fields carry no meaning, shown deterministically.
+
+    Rotating the two solver vectors by 45 degrees inside their shared eigenspace
+    gives vectors that are just as good eigenpairs (same eigenvalue, residual at
+    round-off) yet overlap the originals by only cos(45 deg). Whether a given
+    ARPACK run happens to return such a rotation depends on library versions, so
+    that is documented in VALIDATION.md rather than asserted here.
+    """
+    a = b = 10 * MM
+    nx = ny = 48
+    modes = RectangularWaveguide(a, b, nx, ny).solve_te_modes(2, seed=0)
+    assert modes[0].cutoff_wavenumber == pytest.approx(modes[1].cutoff_wavenumber, rel=1e-10)
+    pair = unit_fields(modes)
+    c = s = math.sqrt(0.5)
+    rotated = pair @ np.array([[c, -s], [s, c]])
+    operator = negative_neumann_laplacian_2d(nx, ny, a / nx, b / ny)
+    lam = modes[0].cutoff_wavenumber**2
+    for vector in rotated.T:
+        assert np.linalg.norm(operator @ vector - lam * vector) / lam < 1e-9
+    assert abs(rotated[:, 0] @ pair[:, 0]) == pytest.approx(math.sqrt(0.5), abs=1e-12)
 
 
 def test_coarse_anisotropic_mesh_can_reorder_near_degenerate_modes():
@@ -178,8 +197,8 @@ def test_validation_dossier_quick_run(tmp_path):
         capture_output=True, text=True, timeout=120, env=dict(os.environ, MPLBACKEND="Agg", PYTHONPATH=str(ROOT / "src")),
     )
     assert result.returncode == 0, result.stderr
-    data = json.loads((tmp_path / "results.json").read_text())
+    data = json.loads((tmp_path / "results.json").read_text(encoding="utf-8"))
     worst = max(abs(row["eigensolver_rel_error"]) for s in data["mode_studies"] for row in s["modes"])
     assert worst < 1e-10
-    assert (tmp_path / "report.md").read_text().startswith("# OpenWave validation results")
+    assert (tmp_path / "report.md").read_text(encoding="utf-8").startswith("# OpenWave validation results")
     assert (tmp_path / "convergence.png").read_bytes().startswith(b"\x89PNG")
