@@ -124,7 +124,7 @@ jobs:
           openwave validate examples/wr90.json
           openwave run examples/wr90.json --output artifacts/wr90-agent
           test -s artifacts/wr90-agent/results.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: wr90-example
           path: artifacts/
