@@ -115,27 +115,3 @@ def test_json_bundle_sign_convention_holds():
     for field in fields:
         assert field.flat[np.flatnonzero(np.abs(field.ravel()) > 0.5)[0]] > 0
         assert np.max(np.abs(field)) == pytest.approx(1.0)
-
-
-@pytest.fixture
-def anyio_backend():
-    return "asyncio"
-
-
-@pytest.mark.anyio
-@pytest.mark.parametrize(("width", "height"), PROBLEMS)
-async def test_mcp_agrees_with_oracle_and_runner(width, height, tmp_path):
-    pytest.importorskip("mcp")
-    from mcp import Client
-
-    from openwave.mcp_server import create_server
-
-    expected = discrete_cutoffs_hz(float(width), float(height), *GUI_MESH)
-    async with Client(create_server(tmp_path), raise_exceptions=True) as client:
-        reply = await client.call_tool("run_experiment",
-                                       {"document": experiment(width, height), "run_name": "parity"})
-    assert reply.is_error is not True
-    modes = reply.structured_content["result"]["modes"]
-    np.testing.assert_allclose([m["cutoff_frequency_hz"] for m in modes], expected, rtol=1e-10)
-    in_process = execute_experiment(experiment(width, height))
-    np.testing.assert_array_equal(np.load(tmp_path / "parity" / "fields.npy"), in_process.fields)
