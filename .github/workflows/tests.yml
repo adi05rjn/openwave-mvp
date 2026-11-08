@@ -1,48 +1,128 @@
 name: Tests
 
 on:
+  # Run on every pull request, and on pushes to main only. Running on every
+  # push as well would test each pull-request branch twice.
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
+
+# A newer push to the same branch makes the older, now-outdated run pointless.
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  pytest:
+  lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: Create a clean Python environment
-        run: python -m venv .venv
-      - name: Install declared project dependencies
-        run: .venv/bin/python -m pip install -e ".[dev,mcp]"
-      - name: Run numerical regression tests
-        run: .venv/bin/python -m pytest -q
-      - name: Drive the real desktop GUI under a virtual display
-        run: |
-          sudo apt-get install -y -q xvfb python3-tk >/dev/null
-          .venv/bin/python -c "import tkinter"
-          xvfb-run -a .venv/bin/python -m pytest -q tests/test_gui_session.py
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: python -m pip install "ruff>=0.5"
+      # Deliberately narrow: syntax errors, undefined names and unused imports.
+      # Style rules are not enforced because the existing code was never
+      # formatted against them; widen this list when that is cleaned up.
+      - run: ruff check --isolated --select E9,F .
+
+  test:
+    name: test (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    # Linux is the supported baseline and blocks merging. Windows and macOS are
+    # new: they report results but do not fail the run until they have proven stable.
+    continue-on-error: ${{ matrix.os != 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    env:
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      # The mcp extra only installs on Python 3.11+ (see pyproject.toml); on 3.10
+      # the MCP tests skip themselves.
+      - run: python -m pip install -e ".[dev,mcp]"
+      - run: python -m pytest -q
+
+  oldest-dependencies:
+    # pyproject.toml promises numpy>=1.26, scipy>=1.12, matplotlib>=3.8. Every
+    # other job installs the newest versions, so this is the only one that
+    # checks the promise.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: python -m pip install -e ".[dev,mcp]" "numpy==1.26.0" "scipy==1.12.0" "matplotlib==3.8.0"
+      - run: python -m pytest -q
+
+  desktop-gui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: python -m pip install -e ".[dev]"
+      - name: Install Tk and a virtual display
+        run: sudo apt-get install -y -q xvfb python3-tk
+      # Fail loudly if Tk is missing: otherwise the GUI test would skip itself
+      # and this job would pass without having tested anything.
+      - run: python -c "import tkinter"
+      - name: Drive the real desktop GUI
+        timeout-minutes: 3
+        run: xvfb-run -a python -m pytest -q -rs tests/test_gui_session.py
+
+  examples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: python -m pip install -e ".[dev]"
       - name: Regenerate the numerical validation dossier
-        env:
-          MPLBACKEND: Agg
         run: |
-          .venv/bin/python benchmarks/validation_dossier.py --output artifacts/validation
+          python benchmarks/validation_dossier.py --output artifacts/validation
           test -s artifacts/validation/report.md
       - name: Run WR-90 simulation and generate a plot
-        env:
-          MPLBACKEND: Agg
         run: |
-          .venv/bin/openwave --width-mm 22.86 --height-mm 10.16 --modes 4 --plot artifacts/wr90.png
+          openwave --width-mm 22.86 --height-mm 10.16 --modes 4 --plot artifacts/wr90.png
           test -s artifacts/wr90.png
       - name: Run the headless JSON experiment workflow
         run: |
-          .venv/bin/openwave schema > /tmp/openwave-schema.json
-          .venv/bin/openwave validate examples/wr90.json
-          .venv/bin/openwave run examples/wr90.json --output artifacts/wr90-agent
+          openwave schema > /tmp/openwave-schema.json
+          openwave validate examples/wr90.json
+          openwave run examples/wr90.json --output artifacts/wr90-agent
           test -s artifacts/wr90-agent/results.json
       - uses: actions/upload-artifact@v4
         with:
