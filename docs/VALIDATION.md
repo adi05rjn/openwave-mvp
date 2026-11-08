@@ -154,9 +154,13 @@ A label can only be assigned by checking both the cutoff and the field.
 **Degeneracy.** When two modes share a cutoff, any rotation within their
 eigenspace is an equally valid answer. In the square guide all five seeds tested
 give identical cutoffs and the same two-dimensional subspace
-(sin θ ≤ 1.5 × 10⁻¹³), but the individual mode-1 field changes: its overlap with
-the seed-0 field ranges from 0.06 to 0.99. Compare subspaces, never individual
-fields, in a degenerate pair. The seed makes a run reproducible; it does not
+(sin θ ≤ 1.5 × 10⁻¹³), but the individual mode-1 field can change: on the
+development machine its overlap with the seed-0 field ranged from 0.06 to 0.99,
+while with numpy 1.26 / scipy 1.12 the smallest overlap over the same seeds was
+0.93. How far a run rotates therefore depends on library versions. Rotating the
+pair by any angle gives equally valid modes (checked in
+`test_rotating_a_degenerate_pair_gives_equally_valid_modes`). Compare subspaces,
+never individual fields, in a degenerate pair. The seed makes a run reproducible; it does not
 make a degenerate field physically meaningful.
 
 **Mode count can split a degenerate group.** WR-28 has TE02 and TE40 at the same
@@ -200,7 +204,7 @@ oracle**, not against another interface:
 | JSON runner (`execute_experiment`) | in process, seed 0 | rtol 10⁻¹⁰ |
 | `openwave run` | subprocess, reads `results.json` and `fields.npy` | rtol 10⁻¹⁰ |
 | Legacy `openwave --width-mm …` | subprocess, parses printed text (6 decimals) | 10⁻⁶ GHz absolute |
-| MCP `run_experiment` | real MCP client, bounded worker subprocess | rtol 10⁻¹⁰; fields bit-identical to the runner |
+| MCP `run_experiment` | real MCP client, bounded worker subprocess | rtol 10⁻¹⁰; fields equal to the runner's within 10⁻⁸ |
 | Real GUI window | `tests/test_gui_session.py` under Xvfb; labels show 3 decimals | half a displayed digit (5 × 10⁻⁴ GHz) |
 
 Fields from the GUI path and the JSON paths agree up to sign (overlap 1 to
