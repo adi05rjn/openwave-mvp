@@ -21,6 +21,17 @@ jobs:
         run: .venv/bin/python -m pip install -e ".[dev,mcp]"
       - name: Run numerical regression tests
         run: .venv/bin/python -m pytest -q
+      - name: Drive the real desktop GUI under a virtual display
+        run: |
+          sudo apt-get install -y -q xvfb python3-tk >/dev/null
+          .venv/bin/python -c "import tkinter"
+          xvfb-run -a .venv/bin/python -m pytest -q tests/test_gui_session.py
+      - name: Regenerate the numerical validation dossier
+        env:
+          MPLBACKEND: Agg
+        run: |
+          .venv/bin/python benchmarks/validation_dossier.py --output artifacts/validation
+          test -s artifacts/validation/report.md
       - name: Run WR-90 simulation and generate a plot
         env:
           MPLBACKEND: Agg
