@@ -1,10 +1,20 @@
 # OpenWave
 
+[![Tests](https://github.com/adi05rjn/openwave-mvp/actions/workflows/tests.yml/badge.svg)](https://github.com/adi05rjn/openwave-mvp/actions/workflows/tests.yml)
+![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+![Scope: ideal rectangular waveguides, scalar TE modes](https://img.shields.io/badge/scope-ideal%20rectangular%20waveguide%20%C2%B7%20scalar%20TE-lightgrey)
+
 **Learn RF waveguide modes by changing dimensions and watching the field patterns.**
 
 OpenWave is an early open-source teaching tool for rectangular waveguides. It shows the first four transverse-electric (TE) modes, their cutoff frequencies, and the corresponding **relative longitudinal magnetic-field** (`H_z`) patterns.
 
 No scripting or solver configuration is needed to use the desktop interface.
+
+<p align="center">
+  <img src="docs/images/gui.gif" alt="The OpenWave desktop window cycling through the first four mode patterns of a 22.86 by 10.16 mm waveguide, with the cutoff frequency shown for each" width="600">
+</p>
+
+<sub>The desktop app, captured from the real window, stepping through its four patterns. Red and blue are opposite signs of the field, not heat or power. Which colour lands on which side can swap each time you launch the app, so only the contrast within one picture matters.</sub>
 
 ## Try it on Linux
 
@@ -37,6 +47,12 @@ openwave-gui
 **What is cutoff frequency?** Each waveguide mode has a minimum frequency needed to travel through the guide. Below its cutoff, the mode does not propagate along the guide.
 
 **What is a mode?** A particular electromagnetic field pattern that can exist inside the waveguide.
+
+<p align="center">
+  <img src="docs/images/modes.png" alt="Four colored field patterns for a WR-90 waveguide: one half-wave across the width (6.557 GHz), a full wave across the width (13.111 GHz), one half-wave across the height (14.750 GHz), and a checkerboard-like mixed pattern (16.142 GHz)" width="760">
+</p>
+
+<sub>The first four patterns for the starting example (WR-90). "Mode 1" to "Mode 4" are the solver's order by cutoff frequency. The TE labels were added only after checking each cutoff against its analytical value for this guide; they are not guaranteed to match for other sizes or meshes. See the [validation dossier](docs/VALIDATION.md).</sub>
 
 ## Optional command line
 
@@ -87,6 +103,14 @@ python -m pytest -q
 The solver uses a cell-centred 2-D grid and a scalar finite-difference TE eigenproblem. The repository includes analytical cutoff and mesh-convergence tests. See [architecture notes](docs/ARCHITECTURE.md).
 
 The [validation dossier](docs/VALIDATION.md) derives the expected error, checks several geometries and higher-order modes, documents sign, indexing and degeneracy pitfalls, and compares the GUI, CLI, JSON and MCP interfaces. Regenerate it with `python benchmarks/validation_dossier.py --output artifacts/validation`.
+
+<p align="center">
+  <img src="docs/images/convergence.png" alt="Log-log plot: the cutoff-frequency error of five WR-90 modes falls in parallel straight lines as the cell size shrinks, matching a reference line of slope 2" width="520">
+</p>
+
+<sub>Cutoff error against cell size: second-order convergence, as derived in the dossier.</sub>
+
+The images in this README are generated, not drawn: `python benchmarks/make_readme_figures.py` (add `--gui` under a display, e.g. `xvfb-run -a`, to re-capture the real window).
 
 ## Current limits
 

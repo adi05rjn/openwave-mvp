@@ -347,6 +347,9 @@ def save_convergence_plot(rows, path: Path) -> None:
     h = np.array(sorted({r["h_mm"] for r in rows}))
     anchor = 2.0 * max(abs(r["rel_error"]) for r in rows)  # offset so it does not hide data
     ax.loglog(h, anchor * (h / h.max()) ** 2, "k--", linewidth=1, label="slope 2")
+    ax.set_xticks(h)
+    ax.set_xticklabels([f"{v:.2f}" for v in h])
+    ax.minorticks_off()
     ax.set_xlabel("Cell size h = width / nx (mm)")
     ax.set_ylabel("|relative cutoff error|")
     ax.set_title("WR-90 cutoff convergence (cell-centred FD, dx ≈ dy)")
