@@ -10,8 +10,8 @@ mesh and colour map the desktop app uses; ``convergence.png`` comes from the
 validation dossier; ``gui.png`` and ``gui.gif`` are screenshots of the actual
 Tk window, which is why ``--gui`` needs Tkinter and a display (a virtual one is
 fine). Under a virtual display there is no window manager, so no title bar.
-The GUI does not fix the eigenvector sign, so red and blue may swap between
-regenerations of gui.png and gui.gif; modes.png applies a fixed sign convention.
+The GUI fixes its solver seed and eigenvector sign, so regenerating gui.png and
+gui.gif gives the same colours; modes.png applies the same sign convention.
 
 Each mode panel is labelled with an analytical TE(m,n) name only after checking
 that the solver's cutoff agrees with that mode's analytical cutoff to 0.1 %.

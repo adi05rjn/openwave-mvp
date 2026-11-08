@@ -14,13 +14,29 @@ DEFAULT_MODE_COUNT = 4
 GUI_MESH = (81, 41)
 
 
+# A fixed starting vector makes the solver repeatable, and the sign rule below
+# removes the eigenvector's arbitrary sign, so the same sizes give the same
+# picture on every launch. Same rule as the JSON experiment bundle.
+GUI_SEED = 0
+
+
+def orient_field(field) -> None:
+    """Flip ``field`` in place so its first sample with |value| > 0.5 is positive."""
+    anchor = field.flat[(abs(field.ravel()) > 0.5).nonzero()[0][0]]
+    if anchor < 0:
+        field *= -1
+
+
 def solve_for_display(
     width_text: str, height_text: str
 ) -> tuple[RectangularWaveguide, list]:
     """Validate the two GUI fields and solve exactly what the Update button shows."""
     width, height, count = validate_inputs(width_text, height_text, str(DEFAULT_MODE_COUNT))
     guide = RectangularWaveguide(width * 1e-3, height * 1e-3, *GUI_MESH)
-    return guide, guide.solve_te_modes(count)
+    modes = guide.solve_te_modes(count, seed=GUI_SEED)
+    for mode in modes:
+        orient_field(mode.field)
+    return guide, modes
 
 
 def validate_inputs(
