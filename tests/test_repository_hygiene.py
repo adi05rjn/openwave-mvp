@@ -11,7 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_license_is_the_full_unmodified_apache_text():
-    text = (ROOT / "LICENSE").read_bytes()
+    # Git on Windows may check files out with CRLF line endings; compare as LF.
+    text = (ROOT / "LICENSE").read_bytes().replace(b"\r\n", b"\n")
     # The standard Apache-2.0 text is 202 lines and 11,358 bytes. Project
     # copyright goes in NOTICE; the licence text itself must not be edited.
     assert len(text) == 11358
