@@ -9,6 +9,18 @@ from .waveguide import RectangularWaveguide
 
 
 DEFAULT_MODE_COUNT = 4
+# The GUI hides mesh settings. This is the solver's historical default mesh,
+# made explicit so cross-interface tests compare like with like.
+GUI_MESH = (81, 41)
+
+
+def solve_for_display(
+    width_text: str, height_text: str
+) -> tuple[RectangularWaveguide, list]:
+    """Validate the two GUI fields and solve exactly what the Update button shows."""
+    width, height, count = validate_inputs(width_text, height_text, str(DEFAULT_MODE_COUNT))
+    guide = RectangularWaveguide(width * 1e-3, height * 1e-3, *GUI_MESH)
+    return guide, guide.solve_te_modes(count)
 
 
 def validate_inputs(
@@ -114,11 +126,7 @@ def main() -> None:
     def run_simulation(_event=None) -> None:
         nonlocal result, modes
         try:
-            width, height, count = validate_inputs(
-                width_var.get(), height_var.get(), str(DEFAULT_MODE_COUNT)
-            )
-            candidate = RectangularWaveguide(width * 1e-3, height * 1e-3)
-            computed = candidate.solve_te_modes(count)
+            candidate, computed = solve_for_display(width_var.get(), height_var.get())
         except (ValueError, RuntimeError) as exc:
             messagebox.showerror("Check dimensions", str(exc), parent=root)
             status_var.set("Check the dimensions and try again.")
