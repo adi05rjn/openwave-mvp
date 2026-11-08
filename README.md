@@ -2,6 +2,7 @@
 
 [![Tests](https://github.com/adi05rjn/openwave-mvp/actions/workflows/tests.yml/badge.svg)](https://github.com/adi05rjn/openwave-mvp/actions/workflows/tests.yml)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)
 ![Scope: ideal rectangular waveguides, scalar TE modes](https://img.shields.io/badge/scope-ideal%20rectangular%20waveguide%20%C2%B7%20scalar%20TE-lightgrey)
 
 **Learn RF waveguide modes by changing dimensions and watching the field patterns.**
@@ -120,4 +121,4 @@ It is an educational prototype, not a substitute for a full-wave RF design tool.
 
 ## License
 
-Apache-2.0 (see [LICENSE](LICENSE)).
+Apache-2.0. See [LICENSE](LICENSE) for the full text and [NOTICE](NOTICE) for the copyright notice.
