@@ -15,7 +15,7 @@ No scripting or solver configuration is needed to use the desktop interface.
   <img src="docs/images/gui.gif" alt="The OpenWave desktop window cycling through the first four mode patterns of a 22.86 by 10.16 mm waveguide, with the cutoff frequency shown for each" width="600">
 </p>
 
-<sub>The desktop app, captured from the real window, stepping through its four patterns. Red and blue are opposite signs of the field, not heat or power. Which colour lands on which side can swap each time you launch the app, so only the contrast within one picture matters.</sub>
+<sub>The desktop app, captured from the real window, stepping through its four patterns. Red and blue are opposite signs of the field, not heat or power, and the sign is fixed so that the first strong sample is red, so the same sizes look the same on every launch.</sub>
 
 ## Try it on Linux
 
