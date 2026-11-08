@@ -13,7 +13,9 @@ OpenWave keeps its existing physics and student interface, with explicit seams:
 
 Dependencies point inward: the CLI calls the runner, which calls validation and
 physics. Physics never imports the CLI, runner, or GUI. The GUI continues to call
-the same physics API directly. Plotting imports are lazy in the legacy CLI path;
+the same physics API directly, through `gui.solve_for_display` on a fixed
+`GUI_MESH` of 81 × 41; `tests/test_interfaces.py` checks that this path, the
+runner, both CLIs and MCP agree (see [VALIDATION.md](VALIDATION.md)). Plotting imports are lazy in the legacy CLI path;
 agent commands never import plotting or Tkinter.
 
 `execute_experiment` is the backend adapter boundary. Its `ExperimentResult`
