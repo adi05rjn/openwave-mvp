@@ -96,6 +96,8 @@ agent and run the automated MCP client tests.
 
 ## For developers
 
+See the [contributor guide](CONTRIBUTING.md) for development setup, checks, and pull request expectations.
+
 ```bash
 python -m pip install -e '.[dev]'
 python -m pytest -q
